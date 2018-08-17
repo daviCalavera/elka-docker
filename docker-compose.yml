@@ -2,7 +2,7 @@ version: '2.2'
 services:
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:6.3.2"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:${ELKA_VERSION}"
     container_name: tbx-elasticsearch
     environment:
       - cluster.name=docker-cluster
@@ -28,12 +28,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - elkanet
 
   logstash:
-    image: "docker.elastic.co/logstash/logstash:6.3.2"
+    image: "docker.elastic.co/logstash/logstash:${ELKA_VERSION}"
     container_name: tbx-logstash
     environment:
-      - "LOG_LEVEL=debug"
+      - "LOG_LEVEL=info"
       - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
       - "XPACK_MONITORING_ELASTICSEARCH_URL=http://tbx-elasticsearch:9200"
     ports:
@@ -44,17 +46,40 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    networks:
+      - elkanet
 
-#  kibana:
-#    image: "docker.elastic.co/kibana/kibana:6.3.2"
-#    hostname: kibana
-#    environment:
-#      ELASTICSEARCH_URL: "http://elasticsearch:9200"
-#      XPACK_MONITORING_ENABLED: "false"
-#    links:
-#      - elasticsearch
-#    ports:
-#      - "5601:5601"
-#    volumes:
-#      - "./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:${ELKA_VERSION}"
+    container_name: tbx-kibana
+    environment:
+      ELASTICSEARCH_URL: "http://tbx-elasticsearch:9200"
+      XPACK_MONITORING_ENABLED: "false"
+    ports:
+      - "5601:5601"
+    volumes:
+      - "./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - elkanet
+
+  apm-server:
+    image: "docker.elastic.co/apm/apm-server:${ELKA_VERSION}"
+    container_name: "tbx-apm-server"
+    ports:
+      - "8200:8200"
+    #volumes:
+    #  - "./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - elkanet
+
+networks:
+  elkanet:
+    driver: bridge
+
 
