@@ -1,4 +1,4 @@
 http.host: 0.0.0.0
 log.level: info
 path.config: /usr/share/logstash/pipeline
-xpack.monitoring.elasticsearch.url: http://tbx-elasticsearch:9200
+xpack.monitoring.elasticsearch.url: http://zorro1-elasticsearch:9200

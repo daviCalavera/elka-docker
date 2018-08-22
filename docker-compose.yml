@@ -2,19 +2,23 @@ version: '2.2'
 services:
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:${ELKA_VERSION}"
-    container_name: tbx-elasticsearch
+    build:
+      context: es/
+      args:
+        ELKA_VERSION: $ELKA_VERSION
+    container_name: zorro1-elasticsearch
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
+      - transport.host=127.0.0.1
       - "ES_JAVA_OPTS:-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
       - "9300:9300"
     volumes:
       - "./es/data:/usr/share/elasticsearch/data"
-      - "./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
-      - "./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/logging.yml"
+      - "./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+      - "./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/logging.yml:ro"
       - "./es/backups:/var/backups"
     ulimits:
       memlock:
@@ -32,16 +36,19 @@ services:
       - elkanet
 
   logstash:
-    image: "docker.elastic.co/logstash/logstash:${ELKA_VERSION}"
-    container_name: tbx-logstash
+    build:
+      context: logstash/
+      args:
+        ELKA_VERSION: $ELKA_VERSION
+    container_name: zorro1-logstash
     environment:
       - "LOG_LEVEL=info"
       - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
-      - "XPACK_MONITORING_ELASTICSEARCH_URL=http://tbx-elasticsearch:9200"
+      - "XPACK_MONITORING_ELASTICSEARCH_URL=http://zorro1-elasticsearch:9200"
     ports:
       - "5000:5000"
     volumes:
-      - "./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml"
+      - "./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.ym:ro"
       - "./logstash/pipeline:/usr/share/logstash/pipeline"
     depends_on:
       elasticsearch:
@@ -50,30 +57,46 @@ services:
       - elkanet
 
   kibana:
-    image: "docker.elastic.co/kibana/kibana:${ELKA_VERSION}"
-    container_name: tbx-kibana
+    build:
+      context: kibana/
+      args:
+        ELKA_VERSION: $ELKA_VERSION
+    container_name: zorro1-kibana
     environment:
-      ELASTICSEARCH_URL: "http://tbx-elasticsearch:9200"
+      ELASTICSEARCH_URL: "http://zorro1-elasticsearch:9200"
       XPACK_MONITORING_ENABLED: "false"
+    expose:
+        - "5601"
     ports:
       - "5601:5601"
     volumes:
-      - "./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+      - "./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
     depends_on:
       elasticsearch:
         condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/"]
+      retries: 10
     networks:
-      - elkanet
+      elkanet:
+        aliases:
+          - zorro1-kibana
 
   apm-server:
-    image: "docker.elastic.co/apm/apm-server:${ELKA_VERSION}"
-    container_name: "tbx-apm-server"
+    build:
+      context: apm-server/
+      args:
+        ELKA_VERSION: $ELKA_VERSION
+    container_name: "zorro1-apm-server"
     ports:
       - "8200:8200"
-    #volumes:
-    #  - "./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml"
+    volumes:
+      - "./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro"
     depends_on:
       elasticsearch:
+        condition: service_healthy
+      kibana:
         condition: service_healthy
     networks:
       - elkanet
