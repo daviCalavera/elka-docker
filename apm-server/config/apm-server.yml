@@ -38,7 +38,7 @@ apm-server:
   # Please be aware that frontend support is an experimental feature at the moment!
   frontend:
     # To enable experimental frontend support set this to true.
-    enabled: false
+    enabled: true
 
     # Rate limit per second and IP address for requests sent to the frontend endpoint.
     #rate_limit: 10

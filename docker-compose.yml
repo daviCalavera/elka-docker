@@ -99,10 +99,53 @@ services:
       kibana:
         condition: service_healthy
     networks:
-      - elkanet
+      elkanet:
+        aliases:
+          - zorro1-apm
+
+  # APM testing services:
+
+  service1:
+      build:
+        context: ./nodeproxy
+        dockerfile: Dockerfile
+      environment:
+        - APM_SERVER_URL=http://zorro1-apm:8200
+        - SERVICE_NAME=service1
+        - PORT=80
+        - FOWARD_TO=http://service2:80/service/2
+      expose:
+        - "80"
+      ports:
+        - "3001:80"
+      networks:
+        elkanet:
+          aliases:
+            - service1
+      depends_on:
+        apm-server:
+          condition: service_started
+
+  service2:
+      build:
+        context: ./nodeproxy
+        dockerfile: Dockerfile
+      environment:
+        - APM_SERVER_URL=http://zorro1-apm:8200
+        - SERVICE_NAME=service2
+        - PORT=80
+      #expose:
+      #  - "80"
+      ports:
+        - "3002:80"
+      networks:
+        elkanet:
+          aliases:
+            - service2
+      depends_on:
+        apm-server:
+          condition: service_started
 
 networks:
   elkanet:
     driver: bridge
-
-
