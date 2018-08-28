@@ -1,12 +1,15 @@
 const Promise = require('bluebird')
 const rp = require('request-promise')
 const apmOps = {
+  // Only activate the agent if it's running in production
+  //active: process.env.NODE_ENV === 'production'
   // Set required service name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
   serviceName: process.env.SERVICE_NAME || 'local-service',
   // Use if APM Server requires a token
   secretToken: '',
   // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: process.env.APM_SERVER_URL || ''
+  serverUrl: process.env.APM_SERVER_URL || '',
+  logLevel: 'debug'
 }
 const apm = require('elastic-apm-node').start(apmOps)
 
@@ -52,7 +55,16 @@ function fowardTo(req, res, next)  {
       .catch( res.send.bind(res) );
     }
 
-    throw new Error('Not Implemented!');
+    var error = new Error('Not Implemented!');
+    apm.captureError(error, {
+      user : {
+        id: 'id_user',
+        username: 'foo',
+        email: 'foo@user.com'
+      }
+    });
+
+    throw error;
   }
 
 
@@ -65,4 +77,7 @@ app.get('/error', (req, res) => {
 })
 app.get('/*', (req, res) => res.send(req.path))
 
-app.listen(process.env.PORT || 3000, () => console.log('Example app listening on port 3001!'))
+// add Elastic APM in the bottom of the middleware stack
+app.use(apm.middleware.connect())
+
+app.listen(process.env.PORT || 3000, () => console.log('Example app listening on port 3000!'))

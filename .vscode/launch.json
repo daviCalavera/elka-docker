@@ -8,7 +8,10 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/nodeproxy/index.js"
+      "program": "${workspaceFolder}/nodeproxy/index.js",
+      "env": {
+        "FOWARD_TO": "http://localhost:3001/service/2"
+      }
     }
   ]
 }

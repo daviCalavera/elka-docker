@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/usr/local/share/tsung/tsung-1.0.dtd">
+<tsung loglevel="warning" version="1.0">
+
+    <clients>
+        <client host="localhost" weight="1" maxusers="2000" use_controller_vm="true"/>
+    </clients>
+
+    <servers>
+        <server host="10.10.40.38" port="3001" weight="1" type="tcp"></server>
+        <server host="10.10.40.38" port="3002" weight="2" type="tcp"></server>
+        <server host="10.10.40.38" port="3003" weight="3" type="tcp"></server>
+    </servers>
+
+    <load duration="15" unit="minute">
+        <!-- 50 users a second for 3 minutes == 9000 sessions -->
+        <arrivalphase phase="1" duration="3" unit="minute">
+            <users arrivalrate="70" unit="second"></users>
+        </arrivalphase>
+        <!-- 100 users a second for 3 minutes == 18000 sessions -->
+        <arrivalphase phase="2" duration="3" unit="minute">
+            <users arrivalrate="100" unit="second"></users>
+        </arrivalphase>
+        <!-- 200 users a second for 6 minutes == 72000 sessions -->
+        <arrivalphase phase="3" duration="6" unit="minute">
+            <users arrivalrate="200" unit="second"></users>
+        </arrivalphase>
+    </load>
+
+    <options>
+        <option type="ts_http" name="user_agent">
+            <user_agent probability="20">Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.0 (KHTML, like Gecko) Chrome/4.0.201.1 Safari/532.0</user_agent>
+            <user_agent probability="30">Mozilla/5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0</user_agent>
+            <user_agent probability="50">Mozilla/5.0 (IE 11.0; Windows NT 6.3; Trident/7.0; .NET4.0E; .NET4.0C; rv:11.0) like Gecko</user_agent>
+        </option>
+    </options>
+
+    <sessions>
+        <session name="http_test_1" probability="100" type="ts_http">
+          <!-- Thinktime is a random pause with a maximum of 2 seconds between requests. -->
+          <thinktime value="2" random="true"></thinktime>
+
+            <request subst="false">
+                <http url="/env" method="GET" version="1.1">
+                    <http_header name="Access-Control-Request-Method" value="GET"/>
+                    <http_header name="Connection" value="keep-alive"/>
+                    <http_header name="Origin" value="http://localhost"/>
+                    <http_header name="Referer" value="http://localhost"/>
+                    <http_header name="Accept-Language" value="es-ES,es;q=0.8"/>
+                    <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
+                </http>
+            </request>
+
+            <request subst="false">
+                <http url="/error" method="GET" version="1.1">
+                    <http_header name="Access-Control-Request-Method" value="GET"/>
+                    <http_header name="Connection" value="keep-alive"/>
+                    <http_header name="Origin" value="http://localhost"/>
+                    <http_header name="Referer" value="http://localhost"/>
+                    <http_header name="Accept-Language" value="es-ES,es;q=0.8"/>
+                    <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
+                </http>
+            </request>
+            <!--
+            <request subst="false">
+                <http url="/service/1" method="GET" version="1.1">
+                    <http_header name="Access-Control-Request-Method" value="GET"/>
+                    <http_header name="Connection" value="keep-alive"/>
+                    <http_header name="Origin" value="http://localhost"/>
+                    <http_header name="Referer" value="http://localhost"/>
+                    <http_header name="Accept-Language" value="es-ES,es;q=0.8"/>
+                    <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
+                </http>
+            </request>
+
+            <request subst="false">
+                <http url="/service/2" method="GET" version="1.1">
+                    <http_header name="Access-Control-Request-Method" value="GET"/>
+                    <http_header name="Connection" value="keep-alive"/>
+                    <http_header name="Origin" value="http://localhost"/>
+                    <http_header name="Referer" value="http://localhost"/>
+                    <http_header name="Accept-Language" value="es-ES,es;q=0.8"/>
+                    <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
+                </http>
+            </request>
+            -->
+            <request subst="false">
+                <http url="/service/3" method="GET" version="1.1">
+                    <http_header name="Access-Control-Request-Method" value="GET"/>
+                    <http_header name="Connection" value="keep-alive"/>
+                    <http_header name="Origin" value="http://localhost"/>
+                    <http_header name="Referer" value="http://localhost"/>
+                    <http_header name="Accept-Language" value="es-ES,es;q=0.8"/>
+                    <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
+                </http>
+            </request>
+
+        </session>
+    </sessions>
+</tsung>
