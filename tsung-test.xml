@@ -12,17 +12,17 @@
         <server host="10.10.40.38" port="3003" weight="3" type="tcp"></server>
     </servers>
 
-    <load duration="15" unit="minute">
+    <load duration="30" unit="minute">
         <!-- 50 users a second for 3 minutes == 9000 sessions -->
-        <arrivalphase phase="1" duration="3" unit="minute">
+        <arrivalphase phase="1" duration="5" unit="minute">
             <users arrivalrate="70" unit="second"></users>
         </arrivalphase>
         <!-- 100 users a second for 3 minutes == 18000 sessions -->
-        <arrivalphase phase="2" duration="3" unit="minute">
+        <arrivalphase phase="2" duration="10" unit="minute">
             <users arrivalrate="100" unit="second"></users>
         </arrivalphase>
         <!-- 200 users a second for 6 minutes == 72000 sessions -->
-        <arrivalphase phase="3" duration="6" unit="minute">
+        <arrivalphase phase="3" duration="15" unit="minute">
             <users arrivalrate="200" unit="second"></users>
         </arrivalphase>
     </load>
@@ -61,7 +61,7 @@
                     <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
                 </http>
             </request>
-            <!--
+
             <request subst="false">
                 <http url="/service/1" method="GET" version="1.1">
                     <http_header name="Access-Control-Request-Method" value="GET"/>
@@ -72,7 +72,7 @@
                     <http_header name="Accept-Encoding" value="gzip, deflate, sdch"/>
                 </http>
             </request>
-
+            <!--
             <request subst="false">
                 <http url="/service/2" method="GET" version="1.1">
                     <http_header name="Access-Control-Request-Method" value="GET"/>

@@ -155,6 +155,7 @@ services:
         - APM_SERVER_URL=http://zorro1-apm:8200
         - SERVICE_NAME=service3
         - PORT=80
+        - FOWARD_TO=http://service2:80/service/1
       expose:
         - "80"
       ports:
