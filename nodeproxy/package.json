@@ -8,10 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "elastic-apm-node": "^1.11.0",
-    "express": "^4.16.3",
+    "bluebird": "^3.5.5",
+    "elastic-apm-node": "^2.12.1",
+    "express": "^4.17.1",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.4"
   }
 }
